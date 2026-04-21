@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoodBite | Personalized Food Recommendations</title>
+    <!-- Modern Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons for elegant UI icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <!-- Background overlay for aesthetics -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div id="app" class="app-container">
+        <!-- Auth Section -->
+        <section id="auth-section" class="view section-active">
+            <div class="auth-card glass-panel">
+                <div class="brand">
+                    <i class="ph-fill ph-fork-knife brand-icon"></i>
+                    <h2>MoodBite</h2>
+                </div>
+                <p class="auth-subtitle">Food for every feeling.</p>
+                
+                <div class="auth-tabs">
+                    <button id="tab-login" class="auth-tab active" onclick="appContext.switchAuthTab('login')">Log In</button>
+                    <button id="tab-signup" class="auth-tab" onclick="appContext.switchAuthTab('signup')">Sign Up</button>
+                </div>
+                
+                <form id="auth-form" onsubmit="appContext.handleAuth(event)">
+                    <div class="input-group" id="name-group" style="display: none;">
+                        <label for="username">Name</label>
+                        <input type="text" id="username" placeholder="Enter your name">
+                    </div>
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="Create a password" required>
+                    </div>
+                    <button type="submit" class="btn-primary" id="auth-submit-btn">Log In</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Main Application View -->
+        <section class="main-layout" id="main-section" style="display: none;">
+            <header class="glass-header">
+                <div class="brand">
+                    <i class="ph-fill ph-fork-knife brand-icon"></i>
+                    <h2>MoodBite</h2>
+                </div>
+                <nav class="top-nav">
+                    <button onclick="appContext.navigate('home')" class="nav-item active" id="nav-home">Home</button>
+                    <button onclick="appContext.navigate('favorites')" class="nav-item" id="nav-favorites">Favorites</button>
+                    <button onclick="appContext.navigate('profile')" class="nav-item" id="nav-profile">Profile</button>
+                    <button onclick="appContext.logout()" class="nav-item btn-logout">Logout</button>
+                </nav>
+            </header>
+
+            <main class="content-area">
+                <!-- Home / Mood Selector View -->
+                <div id="view-home" class="view section-active">
+                    <div class="hero">
+                        <h1 id="welcome-msg">Hey there, let's find you something to eat.</h1>
+                        <p>How are you feeling right now?</p>
+                    </div>
+
+                    <div class="mood-selector">
+                        <button class="mood-btn" onclick="appContext.selectMood('happy')">
+                            <span class="emoji">😄</span>
+                            <span>Happy</span>
+                        </button>
+                        <button class="mood-btn" onclick="appContext.selectMood('sad')">
+                            <span class="emoji">🥺</span>
+                            <span>Sad</span>
+                        </button>
+                        <button class="mood-btn" onclick="appContext.selectMood('stressed')">
+                            <span class="emoji">😫</span>
+                            <span>Stressed</span>
+                        </button>
+                        <button class="mood-btn" onclick="appContext.selectMood('tired')">
+                            <span class="emoji">😴</span>
+                            <span>Tired</span>
+                        </button>
+                        <button class="mood-btn" onclick="appContext.selectMood('energetic')">
+                            <span class="emoji">🤩</span>
+                            <span>Energetic</span>
+                        </button>
+                    </div>
+
+                    <div id="loading-spinner" class="spinner" style="display: none;">
+                        <i class="ph ph-spinner-gap ph-spin"></i>
+                        <p>Finding perfect matches...</p>
+                    </div>
+
+                    <div id="recommendations-container" style="display: none;">
+                        <div class="section-title">
+                            <h3>Recommended for you <span id="time-context" class="badge"></span></h3>
+                            <button class="btn-secondary" onclick="appContext.suggestRestaurant()">Find Nearby Resturants</button>
+                        </div>
+                        <div class="grid" id="food-grid">
+                            <!-- Cards inserted here via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Favorites View -->
+                <div id="view-favorites" class="view" style="display: none;">
+                    <h2>Your Saved Favorites ❤️</h2>
+                    <p class="subtitle">Quick access to the meals you love.</p>
+                    <div class="grid" id="favorites-grid">
+                        <!-- Cards inserted here -->
+                    </div>
+                    <div id="no-favorites" style="display: none;">
+                        <p>You haven't saved any favorites yet. Start liking some food!</p>
+                    </div>
+                </div>
+
+                <!-- Profile View -->
+                <div id="view-profile" class="view" style="display: none;">
+                    <h2>Your Profile</h2>
+                    <div class="profile-card glass-panel">
+                        <div class="input-group">
+                            <label>Dietary Preferences</label>
+                            <select id="pref-diet" onchange="appContext.updateProfile()">
+                                <option value="none">No Preference</option>
+                                <option value="veg">Vegetarian</option>
+                                <option value="vegan">Vegan</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Health Goals</label>
+                            <select id="pref-health" onchange="appContext.updateProfile()">
+                                <option value="balanced">Balanced</option>
+                                <option value="weight_loss">Weight Loss</option>
+                                <option value="muscle">Muscle Gain</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary" onclick="appContext.saveProfile()">Save Preferences</button>
+                        <hr>
+                        <h3>Recent History</h3>
+                        <ul class="history-list" id="history-list">
+                            <!-- History items injected here -->
+                        </ul>
+                    </div>
+                </div>
+            </main>
+        </section>
+        
+        <!-- Recipe Modal -->
+        <div class="modal-overlay" id="recipe-modal">
+            <div class="modal glass-panel">
+                <button class="modal-close" onclick="appContext.closeRecipe()">
+                    <i class="ph ph-x"></i>
+                </button>
+                <img id="modal-img" src="" alt="Food" class="modal-img">
+                <div class="modal-content">
+                    <h3 id="modal-title">Recipe Title</h3>
+                    <div class="tags" id="modal-tags"></div>
+                    <h4>Ingredients & Steps</h4>
+                    <ul id="modal-steps" class="recipe-steps">
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
